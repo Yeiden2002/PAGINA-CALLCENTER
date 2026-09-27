@@ -1,0 +1,12 @@
+{
+  "name": "ead-asesores-horarios",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "npm --prefix Frontend ci && npm --prefix Frontend run build && npm --prefix Backend ci --omit=dev",
+    "start": "npm --prefix Backend start"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

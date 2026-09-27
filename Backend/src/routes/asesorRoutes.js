@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import * as controller from '../controllers/asesorController.js';
+import { validateObjectId } from '../middleware/validateObjectId.js';
+import { upload, importCapacity } from '../middleware/upload.js';
+import { writeLimiter, importLimiter, exportLimiter } from '../middleware/rateLimiters.js';
+import { object, HttpError } from '../utils/validation.js';
+const router=Router();
+const noQuery=(req,res,next)=>{try{object(req.query,[]);next();}catch(error){next(error);}};
+const jsonBody=(req,res,next)=>{if(!req.is('application/json'))return next(new HttpError(415,'Usa Content-Type application/json.'));next();};
+router.get('/',controller.list);
+router.post('/',writeLimiter,noQuery,jsonBody,controller.create);
+router.post('/importar',importLimiter,importCapacity,noQuery,upload,controller.importFile);
+router.get('/exportar',exportLimiter,controller.exportFile);
+router.get('/:id',validateObjectId,noQuery,controller.get);
+router.put('/:id',writeLimiter,validateObjectId,noQuery,jsonBody,controller.update);
+router.patch('/:id/estatus',writeLimiter,validateObjectId,noQuery,jsonBody,controller.patchStatus);
+router.delete('/:id',writeLimiter,validateObjectId,noQuery,controller.remove);
+export default router;

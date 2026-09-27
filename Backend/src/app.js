@@ -1,0 +1,28 @@
+import './config/env.js';
+import express from 'express';
+import mongoose from 'mongoose';
+import healthRoutes from './routes/healthRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import tiemposRoutes from './routes/tiemposRoutes.js';
+import {requireAuth,requireSameOriginWrite} from './middleware/auth.js';
+import asesorRoutes from './routes/asesorRoutes.js';
+import { applySecurity } from './middleware/security.js';
+import { apiLimiter } from './middleware/rateLimiters.js';
+import { notFound, errorHandler } from './middleware/errorHandlers.js';
+const app = express();
+applySecurity(app);
+app.use('/api', apiLimiter);
+app.use(express.json({ limit: '32kb' }));
+app.use(express.urlencoded({ extended: false, limit: '32kb', parameterLimit: 20 }));
+app.use('/api', healthRoutes);
+app.use('/api', (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) return res.status(503).json({ success: false, message: 'La base de datos no está disponible.' });
+  next();
+});
+app.use('/api/auth',authRoutes);
+app.use(['/api/asesores','/api/tiempos'],requireAuth,requireSameOriginWrite,(req,res,next)=>{res.set('Cache-Control','no-store');next();});
+app.use('/api/asesores',asesorRoutes);
+app.use('/api/tiempos',tiemposRoutes);
+app.use(notFound);
+app.use(errorHandler);
+export default app;

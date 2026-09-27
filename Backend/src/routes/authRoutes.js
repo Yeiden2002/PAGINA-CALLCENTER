@@ -1,0 +1,30 @@
+import {Router} from 'express';
+import {randomBytes} from 'node:crypto';
+import {parse} from 'cookie';
+import Usuario from '../models/Usuario.js';
+import Sesion from '../models/Sesion.js';
+import {verifyPassword} from '../auth/password.js';
+import {requireAuth,requireSameOriginWrite,COOKIE,digest} from '../middleware/auth.js';
+import {rateLimit} from 'express-rate-limit';
+import {HttpError,object,text} from '../utils/validation.js';
+const router=Router();
+const cookieOptions=()=>({httpOnly:true,sameSite:process.env.NODE_ENV==='production'?'none':'strict',secure:process.env.NODE_ENV==='production',path:'/api'});
+const limiter=rateLimit({windowMs:15*60*1000,limit:20,skipSuccessfulRequests:true,standardHeaders:'draft-8',legacyHeaders:false,message:{success:false,message:'Demasiados intentos de acceso. Intenta más tarde.'}});
+router.post('/login',limiter,requireSameOriginWrite,async(req,res)=>{
+  object(req.body,['usuario','password']);object(req.query,[]);
+  const name=text(req.body.usuario,'Usuario',80).toLowerCase();
+  if(typeof req.body.password!=='string'||req.body.password.length>128||req.body.password.length<1)throw new HttpError(400,'Credenciales inválidas.');
+  const user=await Usuario.findOne({usuario:name}).select('+passwordHash');
+  const valid=await verifyPassword(req.body.password,user?.passwordHash);
+  if(!user||!valid)throw new HttpError(401,'Usuario o contraseña incorrectos.');
+  const previous=parse(req.headers.cookie||'')[COOKIE];
+  if(previous)await Sesion.deleteOne({tokenHash:digest(previous)});
+  const token=randomBytes(32).toString('hex');const expiresAt=new Date(Date.now()+8*3600*1000);
+  await Sesion.create({tokenHash:digest(token),usuarioId:user._id,expiresAt});
+  res.cookie(COOKIE,token,{...cookieOptions(),maxAge:8*3600*1000});res.json({success:true,data:{usuario:user.usuario}});
+});
+router.get('/session',requireAuth,(req,res)=>{res.set('Cache-Control','no-store');res.json({success:true,data:{usuario:req.auth.user.usuario}});});
+router.post('/logout',requireSameOriginWrite,requireAuth,async(req,res)=>{
+  await Sesion.deleteOne({_id:req.auth.session._id});res.clearCookie(COOKIE,cookieOptions());res.json({success:true,message:'Sesión cerrada.'});
+});
+export default router;
