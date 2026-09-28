@@ -11,7 +11,6 @@ export function mountFrontend(app, directory = buildDirectory) {
   app.use(express.static(directory, {index: false, redirect: false, dotfiles: 'deny',
     setHeaders(res) { res.set('Cache-Control', 'no-cache'); }
   }));
-  app.get('/', (req, res) => res.redirect(302, '/login'));
   app.use((req, res, next) => {
     if (!['GET', 'HEAD'].includes(req.method) || extname(req.path) || !req.accepts('html')) return next();
     res.set('Cache-Control', 'no-store');

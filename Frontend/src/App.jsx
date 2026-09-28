@@ -9,14 +9,14 @@ import TiemposPage from './pages/TiemposPage.jsx';
 
 export default function App() {
   return <AuthProvider><Routes>
-    <Route path="/" element={<Navigate to="/login" replace/>}/>
     <Route path="/login" element={<LoginPage/>}/>
     <Route element={<ProtectedRoute/>}>
       <Route element={<Layout/>}>
-        <Route path="/inicio" element={<HomePage/>}/>
+        <Route path="/" element={<HomePage/>}/>
+        <Route path="/inicio" element={<Navigate to="/" replace/>}/>
         <Route path="/asesores" element={<AsesoresPage/>}/>
         <Route path="/tiempos" element={<TiemposPage/>}/>
-        <Route path="*" element={<Hero title="Página no encontrada" subtitle="Esta dirección no está disponible."><Link className="light-button" to="/inicio">Volver al inicio</Link></Hero>}/>
+        <Route path="*" element={<Hero title="Página no encontrada" subtitle="Esta dirección no está disponible."><Link className="light-button" to="/">Volver al inicio</Link></Hero>}/>
       </Route>
     </Route>
   </Routes></AuthProvider>;

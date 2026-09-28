@@ -19,7 +19,7 @@ export default function Layout() {
   }, [pathname]);
 
   useEffect(() => {
-    document.title = pathname === '/inicio' ? 'EAD — Tu información, en un solo lugar' : pathname === '/tiempos' ? 'Tiempos — EAD' : pathname === '/login' ? 'Iniciar sesión — EAD' : pathname === '/asesores' ? 'Asesores — EAD' : 'Página no encontrada — EAD';
+    document.title = pathname === '/' ? 'EAD — Tu información, en un solo lugar' : pathname === '/tiempos' ? 'Tiempos — EAD' : pathname === '/login' ? 'Iniciar sesión — EAD' : pathname === '/asesores' ? 'Asesores — EAD' : 'Página no encontrada — EAD';
   }, [pathname]);
 
   return (

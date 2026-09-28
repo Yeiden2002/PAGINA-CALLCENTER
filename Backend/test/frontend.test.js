@@ -18,9 +18,7 @@ test('same-origin: SPA, assets, API y rutas desconocidas conservan su respuesta'
   const server=app.listen(0,'127.0.0.1'); await once(server,'listening');
   const base=`http://127.0.0.1:${server.address().port}`;
   try {
-    const root=await fetch(base,{redirect:'manual'});
-    assert.equal(root.status,302);assert.equal(root.headers.get('location'),'/login');
-    for(const path of ['/login','/tiempos','/asesores']) {
+    for(const path of ['/','/inicio','/login','/tiempos','/asesores']) {
       const response=await fetch(base+path);
       assert.equal(response.status,200);assert.match(await response.text(),/EAD fixture/);
       assert.equal(response.headers.get('cache-control'),'no-store');

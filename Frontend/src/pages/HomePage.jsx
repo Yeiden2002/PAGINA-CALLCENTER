@@ -14,8 +14,8 @@ export default function HomePage() {
         <div className="hero-tags" aria-label="Características de la plataforma"><span>Todo más simple:</span><span className="tag">Organización</span><span className="tag">Claridad</span><span className="tag">En un solo lugar</span></div>
       </Hero>
       <section className="content-section home-intro">
-        <div><p className="section-kicker">UN PUNTO DE PARTIDA</p><h2>Espacio para lo que viene.</h2></div>
-        <p>Estamos preparando tu espacio de trabajo.<br />Comienza por la sección <strong>Tiempos</strong>.</p>
+        <div><p className="section-kicker">UN PUNTO DE PARTIDA</p><h2>Tu espacio de trabajo.</h2></div>
+        <p>Selecciona <strong>Tiempos</strong> o <strong>Asesores</strong> en el menú para comenzar.</p>
       </section>
     </>
   );
