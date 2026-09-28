@@ -8,7 +8,7 @@ import {requireAuth,requireSameOriginWrite,COOKIE,digest} from '../middleware/au
 import {rateLimit} from 'express-rate-limit';
 import {HttpError,object,text} from '../utils/validation.js';
 const router=Router();
-const cookieOptions=()=>({httpOnly:true,sameSite:process.env.NODE_ENV==='production'?'none':'strict',secure:process.env.NODE_ENV==='production',path:'/api'});
+const cookieOptions=()=>({httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/api'});
 const limiter=rateLimit({windowMs:15*60*1000,limit:20,skipSuccessfulRequests:true,standardHeaders:'draft-8',legacyHeaders:false,message:{success:false,message:'Demasiados intentos de acceso. Intenta más tarde.'}});
 router.post('/login',limiter,requireSameOriginWrite,async(req,res)=>{
   object(req.body,['usuario','password']);object(req.query,[]);

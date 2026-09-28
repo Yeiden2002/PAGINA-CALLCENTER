@@ -28,9 +28,9 @@ test('R2 con API real y MongoDB temporal: publicación, errores y recuperación'
   try {
     await Usuario.create({usuario:'synthetic',passwordHash:await hashPassword('Only-synthetic-tests-2026!')});
     await Asesor.create({nombreAsesor:'Persona ficticia',campana:'Prueba',jornada:7,tiempoBreak:30,horario:'08:00 A 15:00'});
-    await t.test('cookie Secure/HttpOnly/SameSite=None y sesión persistida',async()=>{
+    await t.test('cookie Secure/HttpOnly/SameSite=Strict y sesión persistida',async()=>{
       const r=await request('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:'synthetic',password:'Only-synthetic-tests-2026!'})});
-      assert.equal(r.status,200);const cookie=r.headers.get('set-cookie');for(const rule of [/HttpOnly/i,/Secure/i,/SameSite=None/i])assert.match(cookie,rule);
+      assert.equal(r.status,200);const cookie=r.headers.get('set-cookie');for(const rule of [/HttpOnly/i,/Secure/i,/SameSite=Strict/i])assert.match(cookie,rule);
       headers.Cookie=cookie.split(';')[0];assert.equal((await request('/auth/session')).status,200);
     });
     await t.test('CORS y CSRF no confían en Host ni en cabecera antigua',async()=>{
@@ -60,6 +60,15 @@ test('R2 con API real y MongoDB temporal: publicación, errores y recuperación'
     await t.test('eliminación fallida conserva diario y recuperación completa conserva asesores',async()=>{
       client.fail='DeleteObjectCommand';assert.equal((await request(`/tiempos/importaciones/${id}`,{method:'DELETE'})).status,503);assert.equal((await Importacion.findById(id)).estado,'Eliminando');
       client.fail=null;await recoverOperations();assert.equal(await Importacion.countDocuments(),0);assert.equal(await Tiempo.countDocuments(),0);assert.equal(client.objects.size,0);assert.equal(await Asesor.countDocuments(),1);
+    });
+    await t.test('logout revoca sesión y elimina cookie con los mismos atributos',async()=>{
+      assert.equal((await request('/auth/session')).status,200);
+      assert.equal((await request('/tiempos/importaciones?page=1&limit=15')).status,200);
+      const response=await request('/auth/logout',{method:'POST'});
+      assert.equal(response.status,200);
+      for(const rule of [/HttpOnly/i,/Secure/i,/SameSite=Strict/i,/Path=\/api/i,/Expires=Thu, 01 Jan 1970/i]) assert.match(response.headers.get('set-cookie'),rule);
+      assert.equal((await request('/auth/session')).status,401);
+      assert.equal((await request('/tiempos/importaciones')).status,401);
     });
   } finally {
     client.fail=null;await new Promise(resolve=>server.close(resolve));assert.match(mongoose.connection.name,/^ead_r2_test_\d+$/);await mongoose.connection.dropDatabase();await mongoose.disconnect();mock.restoreAll();

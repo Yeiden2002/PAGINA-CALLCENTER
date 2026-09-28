@@ -1,12 +1,11 @@
-# Separate services; no secrets, disks or automatic production deployments.
+# One public origin for SPA and API; keep the existing ead-api service.
 services:
   - type: web
     name: ead-api
     runtime: node
     region: virginia
     plan: free
-    rootDir: Backend
-    buildCommand: npm ci --omit=dev
+    buildCommand: npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeployTrigger: off
@@ -17,6 +16,10 @@ services:
         value: production
       - key: TRUST_PROXY
         value: render
+      - key: SERVE_FRONTEND
+        value: "true"
+      - key: VITE_API_URL
+        value: /api
       - key: STORAGE_PROVIDER
         value: r2
       - key: MONGODB_URI
@@ -31,29 +34,3 @@ services:
         sync: false
       - key: R2_BUCKET
         sync: false
-  - type: web
-    name: ead-web
-    runtime: static
-    rootDir: Frontend
-    buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    autoDeployTrigger: off
-    envVars:
-      - key: NODE_VERSION
-        value: 22.22.0
-      - key: VITE_API_URL
-        sync: false
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: X-Frame-Options
-        value: DENY
-      - path: /*
-        name: Referrer-Policy
-        value: strict-origin-when-cross-origin

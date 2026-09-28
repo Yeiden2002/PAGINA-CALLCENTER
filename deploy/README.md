@@ -1,5 +1,7 @@
 # EAD: despliegue en producción
 
+> **Despliegue vigente:** [sesión en el mismo origen](SESION-SAME-ORIGIN.md). Esta guía sustituye las instrucciones anteriores de frontend y API en servicios separados; las instrucciones de Atlas, R2 y respaldo siguen aplicando.
+
 Estado: código preparado; no se han creado cuentas, contratado servicios, migrado datos ni publicado una URL. Mantener una instancia de Backend. El acceso exige usuario de EAD; compartir el enlace no permite ver datos sin sesión. `/` abre directamente `/login` en la misma pestaña; el inicio anterior queda en `/inicio` protegido.
 
 ## 1. Preparar GitHub

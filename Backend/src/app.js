@@ -1,5 +1,6 @@
 import './config/env.js';
 import express from 'express';
+import {mountFrontend} from './frontend.js';
 import mongoose from 'mongoose';
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -23,6 +24,9 @@ app.use('/api/auth',authRoutes);
 app.use(['/api/asesores','/api/tiempos'],requireAuth,requireSameOriginWrite,(req,res,next)=>{res.set('Cache-Control','no-store');next();});
 app.use('/api/asesores',asesorRoutes);
 app.use('/api/tiempos',tiemposRoutes);
+// API errors must never fall through to the SPA HTML.
+app.use('/api', notFound);
+if (process.env.SERVE_FRONTEND === 'true') mountFrontend(app);
 app.use(notFound);
 app.use(errorHandler);
 export default app;

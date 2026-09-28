@@ -1,5 +1,7 @@
 # EAD · Asesores y horarios
 
+> **Despliegue vigente:** [sesión en el mismo origen](deploy/SESION-SAME-ORIGIN.md). Esta guía sustituye las instrucciones anteriores de frontend y API en servicios separados; las instrucciones de Atlas, R2 y respaldo siguen aplicando.
+
 Proyecto **preparado para despliegue en Render, Atlas y R2**; pendiente configurar y verificar las cuentas externas. Conserva Home y Tiempos e incorpora registro, consulta, búsqueda, filtros, edición, estatus, eliminación e importación/exportación Excel con persistencia real.
 
 ## Arquitectura
